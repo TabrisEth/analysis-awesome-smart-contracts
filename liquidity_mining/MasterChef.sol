@@ -10,19 +10,19 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SushiToken.sol";
 
 interface IMigratorChef {
-    // 执行从旧版 UniswapV2 到 SushiSwap 的 LP 代币迁移。
+    // 执行从旧版 UniswapV2 到 SushiSwap 的 LP代币(Liquidity Provider Tokens (LP Tokens) 流动性挖矿提供中代币迁移。
     // 取当前 LP 代币地址，返回新的 LP 代币地址。
     // 迁移者应该对调用者的 LP 令牌具有完全访问权限。
     // 返回新的 LP 代币地址。
     //
     // XXX Migrator 必须有权访问 UniswapV2 LP 代币。
-    // SushiSwap 必须铸造完全相同数量的 SushiSwap LP 代币或
+    // SushiSwap 必须铸造完全相同数量的 SushiSwap LP 代币
     // 否则会发生不好的事情。传统的 UniswapV2 没有
     // 这样做要小心！
     function migrate(IERC20 token) external returns (IERC20);
 }
 
-// MasterChef 是寿司大师。他可以做寿司，他是一个公平的人。
+// MasterChef 来源于Sushi主分支。他可以产生Sushi币，是一个公平的功能。
 //
 // 请注意，它是可拥有的，并且拥有者拥有巨大的权力。所有权
 // 一旦 SUSHI 足够，将转移到治理智能合约
@@ -50,30 +50,30 @@ contract MasterChef is Ownable {
     }
     // 每个池的信息。
     struct PoolInfo {
-        IERC20 lpToken; // Address of LP token contract.
-        uint256 allocPoint; // How many allocation points assigned to this pool. SUSHIs to distribute per block.
-        uint256 lastRewardBlock; // Last block number that SUSHIs distribution occurs.
-        uint256 accSushiPerShare; // Accumulated SUSHIs per share, times 1e12. See below.
+        IERC20 lpToken; // LP代币合约地址。
+        uint256 allocPoint; // 分配给这个池的分配点数。SUSHI 按块分配。
+        uint256 lastRewardBlock; // SUSHI 分发的最后一个区块号。
+        uint256 accSushiPerShare; // 每股累计 SUSHI，乘以 1e12。见下文。
     }
     // The SUSHI TOKEN!
     SushiToken public sushi;
     // Dev address.
     address public devaddr;
-    // Block number when bonus SUSHI period ends.
+    // 红利 SUSHI 期结束时的区块号。
     uint256 public bonusEndBlock;
-    // SUSHI tokens created per block.
+    // 每个区块创建的 SUSHI 代币。
     uint256 public sushiPerBlock;
-    // Bonus muliplier for early sushi makers.
+    // 早期SUSHI制造商的奖金乘数。
     uint256 public constant BONUS_MULTIPLIER = 10;
-    // The migrator contract. It has a lot of power. Can only be set through governance (owner).
+    // 迁移者合约。它有很大的力量。只能通过治理（所有者）设置。
     IMigratorChef public migrator;
-    // Info of each pool.
+    // 每个池的信息。
     PoolInfo[] public poolInfo;
-    // Info of each user that stakes LP tokens.
+    // 每个抵押LP 代币用户的信息
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
-    // Total allocation poitns. Must be the sum of all allocation points in all pools.
+    // 总分配点。必须是所有池中所有分配点的总和。
     uint256 public totalAllocPoint = 0;
-    // The block number when SUSHI mining starts.
+    // SUSHI 挖矿开始时的区块号。
     uint256 public startBlock;
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -101,8 +101,10 @@ contract MasterChef is Ownable {
         return poolInfo.length;
     }
 
-    // Add a new lp to the pool. Can only be called by the owner.
-    // XXX DO NOT add the same LP token more than once. Rewards will be messed up if you do.
+    // 添加新的 lp 到池中。只能由所有者调用。
+    // XXX 不要多次添加相同的 LP 令牌。如果你这样做了，奖励就会被搞砸。
+    // ? : (条件运算符 )
+    // 如果条件为真 ? 则取值X : 否则值Y
     function add(
         uint256 _allocPoint,
         IERC20 _lpToken,
@@ -125,7 +127,7 @@ contract MasterChef is Ownable {
         );
     }
 
-    // Update the given pool's SUSHI allocation point. Can only be called by the owner.
+    // 更新给定池的 SUSHI 分配点。只能由所有者调用。
     function set(
         uint256 _pid,
         uint256 _allocPoint,
@@ -140,12 +142,12 @@ contract MasterChef is Ownable {
         poolInfo[_pid].allocPoint = _allocPoint;
     }
 
-    // Set the migrator contract. Can only be called by the owner.
+    // 设置迁移者合约。只能由所有者调用。
     function setMigrator(IMigratorChef _migrator) public onlyOwner {
         migrator = _migrator;
     }
 
-    // Migrate lp token to another lp contract. Can be called by anyone. We trust that migrator contract is good.
+    // 将 lp 代币迁移到另一个 lp 合约。任何人都可以调用。我们相信移民合同是好的。
     function migrate(uint256 _pid) public {
         require(address(migrator) != address(0), "migrate: no migrator");
         PoolInfo storage pool = poolInfo[_pid];
@@ -157,7 +159,7 @@ contract MasterChef is Ownable {
         pool.lpToken = newLpToken;
     }
 
-    // Return reward multiplier over the given _from to _to block.
+    // 返回给定 _from 到 _to 块的奖励乘数。
     function getMultiplier(uint256 _from, uint256 _to)
         public
         view
@@ -175,7 +177,7 @@ contract MasterChef is Ownable {
         }
     }
 
-    // View function to see pending SUSHIs on frontend.
+    // 查看函数以查看前端挂起的 SUSHI。
     function pendingSushi(uint256 _pid, address _user)
         external
         view
@@ -201,7 +203,7 @@ contract MasterChef is Ownable {
         return user.amount.mul(accSushiPerShare).div(1e12).sub(user.rewardDebt);
     }
 
-    // Update reward vairables for all pools. Be careful of gas spending!
+    // 更新所有池的奖励变量。小心油耗！
     function massUpdatePools() public {
         uint256 length = poolInfo.length;
         for (uint256 pid = 0; pid < length; ++pid) {
@@ -209,7 +211,7 @@ contract MasterChef is Ownable {
         }
     }
 
-    // Update reward variables of the given pool to be up-to-date.
+    // 将给定池的奖励变量更新为最新的。
     function updatePool(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
         if (block.number <= pool.lastRewardBlock) {
@@ -233,7 +235,7 @@ contract MasterChef is Ownable {
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit LP tokens to MasterChef for SUSHI allocation.
+    // 将 LP 代币存入 MasterChef 用于 SUSHI 分配。
     function deposit(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -256,7 +258,7 @@ contract MasterChef is Ownable {
         emit Deposit(msg.sender, _pid, _amount);
     }
 
-    // Withdraw LP tokens from MasterChef.
+    // 从 MasterChef 中提取 LP 代币。
     function withdraw(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -272,7 +274,7 @@ contract MasterChef is Ownable {
         emit Withdraw(msg.sender, _pid, _amount);
     }
 
-    // Withdraw without caring about rewards. EMERGENCY ONLY.
+    // 退出而不关心奖励。仅限紧急情况。
     function emergencyWithdraw(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -282,7 +284,7 @@ contract MasterChef is Ownable {
         user.rewardDebt = 0;
     }
 
-    // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
+    // 安全的 sushi 转移函数，以防四舍五入导致池中没有足够的 SUSHI。
     function safeSushiTransfer(address _to, uint256 _amount) internal {
         uint256 sushiBal = sushi.balanceOf(address(this));
         if (_amount > sushiBal) {
@@ -292,7 +294,7 @@ contract MasterChef is Ownable {
         }
     }
 
-    // Update dev address by the previous dev.
+    // 用前一个开发者更新开发者地址。
     function dev(address _devaddr) public {
         require(msg.sender == devaddr, "dev: wut?");
         devaddr = _devaddr;
