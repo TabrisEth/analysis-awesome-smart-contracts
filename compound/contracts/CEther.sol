@@ -1204,8 +1204,8 @@ contract CToken is
     /**
      * @notice Construct a new money market
      * @param comptroller_ The address of the Comptroller
-     * @param interestRateModel_ The address of the interest rate model
-     * @param initialExchangeRateMantissa_ The initial exchange rate, scaled by 1e18
+     * @param interestRateModel_ The address of the interest rate model(利率模型)
+     * @param initialExchangeRateMantissa_ The initial exchange rate, scaled by 1e18 -> (1*10^18)
      * @param name_ EIP-20 name of this token
      * @param symbol_ EIP-20 symbol of this token
      * @param decimals_ EIP-20 decimal precision of this token
@@ -1257,6 +1257,7 @@ contract CToken is
      * @param tokens The number of tokens to transfer
      * @return Whether or not the transfer succeeded
      */
+    //@tabris 捐赠者 讲token 从src 到 dst
     function transferTokens(
         address spender,
         address src,
@@ -1543,6 +1544,7 @@ contract CToken is
      * @notice Returns the current total borrows plus accrued interest
      * @return The total borrows with interest
      */
+
     function totalBorrowsCurrent() external nonReentrant returns (uint256) {
         require(
             accrueInterest() == uint256(Error.NO_ERROR),
