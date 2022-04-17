@@ -15,9 +15,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     //最小流动性 = 1000
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
     //SELECTOR常量值为'transfer(address,uint256)'字符串哈希值的前4位16进制数字
-    bytes4 private constant SELECTOR = bytes4(
-        keccak256(bytes("transfer(address,uint256)"))
-    );
+    bytes4 private constant SELECTOR =
+        bytes4(keccak256(bytes("transfer(address,uint256)")));
 
     address public factory; //工厂地址
     address public token0; //token0地址/

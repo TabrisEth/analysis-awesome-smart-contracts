@@ -1,7 +1,7 @@
 pragma solidity =0.5.16;
 
-import './interfaces/IUniswapV2Factory.sol';
-import './UniswapV2Pair.sol';
+import "./interfaces/IUniswapV2Factory.sol";
+import "./UniswapV2Pair.sol";
 
 //uniswap工厂
 contract UniswapV2Factory is IUniswapV2Factory {
@@ -12,9 +12,15 @@ contract UniswapV2Factory is IUniswapV2Factory {
     //所有配对数组
     address[] public allPairs;
     //配对合约的Bytecode的hash
-    bytes32 public constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(UniswapV2Pair).creationCode));
+    bytes32 public constant INIT_CODE_PAIR_HASH =
+        keccak256(abi.encodePacked(type(UniswapV2Pair).creationCode));
     //事件:配对被创建
-    event PairCreated(address indexed token0, address indexed token1, address pair, uint);
+    event PairCreated(
+        address indexed token0,
+        address indexed token1,
+        address pair,
+        uint256
+    );
 
     /**
      * @dev 构造函数
@@ -27,7 +33,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
     /**
      * @dev 查询配对数组长度方法
      */
-    function allPairsLength() external view returns (uint) {
+    function allPairsLength() external view returns (uint256) {
         return allPairs.length;
     }
 
@@ -38,23 +44,33 @@ contract UniswapV2Factory is IUniswapV2Factory {
      * @return pair 配对地址
      * @dev 创建配对
      */
-    function createPair(address tokenA, address tokenB) external returns (address pair) {
+    function createPair(address tokenA, address tokenB)
+        external
+        returns (address pair)
+    {
         //确认tokenA不等于tokenB
-        require(tokenA != tokenB, 'UniswapV2: IDENTICAL_ADDRESSES');
+        require(tokenA != tokenB, "UniswapV2: IDENTICAL_ADDRESSES");
         //将tokenA和tokenB进行大小排序,确保tokenA小于tokenB
-        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        (address token0, address token1) = tokenA < tokenB
+            ? (tokenA, tokenB)
+            : (tokenB, tokenA);
         //确认token0不等于0地址
-        require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
+        require(token0 != address(0), "UniswapV2: ZERO_ADDRESS");
         //确认配对映射中不存在token0=>token1
-        require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
+        require(
+            getPair[token0][token1] == address(0),
+            "UniswapV2: PAIR_EXISTS"
+        ); // single check is sufficient
         //给bytecode变量赋值"UniswapV2Pair"合约的创建字节码
+        //type使用文档：https://docs.soliditylang.org/en/v0.8.12/units-and-global-variables.html#meta-type
+        //type(C).creationCode: 包含合约创建字节码的内存字节数组。这可以在内联汇编中用于构建自定义创建例程，尤其是通过使用create2操作码。
         bytes memory bytecode = type(UniswapV2Pair).creationCode;
         //将token0和token1打包后创建哈希
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
-        //内联汇编
+        //内联汇编：可以满足solidity不能满足的方法，使用汇编方法进行调用使用
         //solium-disable-next-line
         assembly {
-            //通过create2方法布署合约,并且加盐,返回地址到pair变量
+            //通过create2方法布署合约,并且加盐,返回地址到pair变量(address 地址类型)，因为上面的returns 已经加入address类型了，这里不再需要加入类型声明
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
         //调用pair地址的合约中的"initialize"方法,传入变量token0,token1
@@ -74,7 +90,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
      * @param _feeTo 收税地址
      */
     function setFeeTo(address _feeTo) external {
-        require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
+        require(msg.sender == feeToSetter, "UniswapV2: FORBIDDEN");
         feeTo = _feeTo;
     }
 
@@ -83,7 +99,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
      * @param _feeToSetter 收税权限控制
      */
     function setFeeToSetter(address _feeToSetter) external {
-        require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
+        require(msg.sender == feeToSetter, "UniswapV2: FORBIDDEN");
         feeToSetter = _feeToSetter;
     }
 }
