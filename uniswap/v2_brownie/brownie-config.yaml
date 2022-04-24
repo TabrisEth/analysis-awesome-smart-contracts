@@ -1,0 +1,15 @@
+dotenv: .env
+networks:
+  default: development
+  development:
+    persist: false
+    cmd_settings:
+      default_balance: 500000000
+  mainnet-fork:
+    verify: False
+    cmd_settings:
+      unlimited_contract_size: True
+      accounts: 10
+      default_balance: 5000
+wallets:
+  from_key: ${PRIVATE_KEY}
