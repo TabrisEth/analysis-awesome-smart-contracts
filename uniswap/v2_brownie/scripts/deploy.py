@@ -7,7 +7,7 @@ from scripts.helpful_scripts import get_accounts
 
 def set_env():
     """
-    设置一些环境变量，并且设置为global
+    设置一些环境变量,并且设置为global
     """
     global deployer, account1
     [deployer, account1] = get_accounts(2)
